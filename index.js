@@ -19,6 +19,7 @@ async function run(){
     await client.connect();
     
    const productCollection = client.db('tools_mart').collection('products'); 
+   const orderCollection = client.db('tools_mart').collection('orders'); 
  
    app.get('/product', async (req, res)=>{
        const query = {};
@@ -32,6 +33,14 @@ async function run(){
     const product = await productCollection.findOne(query);
     res.send(product);
   })
+
+  // Order api
+  app.post('/orders', async(req, res) =>{
+    const order = req.body;
+    console.log('adding new user', order);
+    const result = await orderCollection.insertOne(order);
+    res.send(result)
+});
 
     }
 finally{
