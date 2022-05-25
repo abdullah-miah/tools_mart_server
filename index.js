@@ -34,20 +34,21 @@ async function run(){
     try{
     await client.connect();
     
-   const productCollection = client.db('tools_mart').collection('products'); 
+  //  const productsCollection = client.db('tools_mart').collection('products'); 
    const orderCollection = client.db('tools_mart').collection('orders'); 
    const userCollection = client.db('tools_mart').collection('users'); 
+   const productsCollection = client.db('tools_mart').collection('product'); 
  
    app.get('/product', async (req, res)=>{
        const query = {};
-       const cursor = productCollection.find(query);
+       const cursor = productsCollection.find(query);
        const products = await cursor.toArray();
        res.send(products);
    })
    app.get('/purchase/:id', async(req, res) => {
     const id = req.params.id;
     const query = { _id: ObjectId(id) };
-    const product = await productCollection.findOne(query);
+    const product = await productsCollection.findOne(query);
     res.send(product);
   })
 
@@ -110,6 +111,11 @@ app.get('/user', verifyJWT, async(req,res)=>{
     }
 
   })
+  app.post('/products',async (req, res) => {
+    const product = req.body;
+    const result = await productsCollection.insertOne(product);
+    res.send(result);
+  });
 
 
   //  user put
