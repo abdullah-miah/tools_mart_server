@@ -78,6 +78,19 @@ app.get('/user', verifyJWT, async(req,res)=>{
     
     
   });
+  app.get('/products', verifyJWT, async(req,res)=>{
+    const userEmail =req.query.userEmail;
+    const decodedEmail =req.decoded.email;
+    if(userEmail === decodedEmail){
+      const query = {userEmail:userEmail};
+    const products = await productsCollection.find(query).toArray();
+    return res.send(products);
+    }else{
+      return res.status(403).send({meassage: 'Forbiden access'})
+    }
+    
+    
+  });
   app.get('/admin/:email', async(req, res) =>{
     const email = req.params.email;
     const user = await userCollection.findOne({email: email});
