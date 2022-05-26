@@ -98,13 +98,17 @@ async function run(){
 app.get('/payment/:id', async(req, res) =>{
   const id = req.params.id;
   const query = {_id: ObjectId(id)};
-  const booking = await orderCollection.findOne(query);
-  res.send(booking);
+  const payment = await orderCollection.findOne(query);
+  res.send(payment);
 })
 
 app.get('/user', verifyJWT, async(req,res)=>{
   const users = await userCollection.find().toArray();
   res.send(users);
+})
+app.get('/clientReview', async(req,res)=>{
+  const review = await reviewCollection.find().toArray();
+  res.send(review);
 })
 
 // order get api
