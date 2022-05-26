@@ -40,6 +40,7 @@ async function run(){
    const userCollection = client.db('tools_mart').collection('users'); 
    const productsCollection = client.db('tools_mart').collection('product'); 
    const paymentCollection = client.db('tools_mart').collection('payment'); 
+   const reviewCollection = client.db('tools_mart').collection('review'); 
  
    app.get('/product', async (req, res)=>{
        const query = {};
@@ -66,7 +67,7 @@ async function run(){
     res.send({clientSecret: paymentIntent.client_secret})
   })
 
-  app.patch('/booking/:id', verifyJWT, async(req, res) =>{
+  app.patch('/payment/:id', verifyJWT, async(req, res) =>{
     const id  = req.params.id;
     const payment = req.body;
     const filter = {_id: ObjectId(id)};
@@ -78,8 +79,8 @@ async function run(){
     }
 
     const result = await paymentCollection.insertOne(payment);
-    const updatedBooking = await orderCollection.updateOne(filter, updatedDoc);
-    res.send(updatedBooking);
+    const updatedOrder = await orderCollection.updateOne(filter, updatedDoc);
+    res.send({result,updatedOrder});
   })
 
 
@@ -87,6 +88,11 @@ async function run(){
   app.post('/orders', async(req, res) =>{
     const order = req.body;
     const result = await orderCollection.insertOne(order);
+    res.send(result)
+});
+  app.post('/review', async(req, res) =>{
+    const review = req.body;
+    const result = await reviewCollection.insertOne(review);
     res.send(result)
 });
 app.get('/payment/:id', async(req, res) =>{
