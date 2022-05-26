@@ -5,6 +5,7 @@ const jwt = require('jsonwebtoken');
 var ObjectId = require('mongodb').ObjectId;
 const { MongoClient, ServerApiVersion } = require('mongodb');
 require('dotenv').config();
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const port = process.env.PORT||5000;
 
 // midleware
@@ -38,6 +39,7 @@ async function run(){
    const orderCollection = client.db('tools_mart').collection('orders'); 
    const userCollection = client.db('tools_mart').collection('users'); 
    const productsCollection = client.db('tools_mart').collection('product'); 
+   const paymentCollection = client.db('tools_mart').collection('payment'); 
  
    app.get('/product', async (req, res)=>{
        const query = {};
@@ -52,12 +54,47 @@ async function run(){
     res.send(product);
   })
 
+  app.post('/create-payment-intent', verifyJWT, async(req, res) =>{
+    const service = req.body;
+    const price = service.price;
+    const amount = price*100;
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount : amount,
+      currency: 'usd',
+      payment_method_types:['card']
+    });
+    res.send({clientSecret: paymentIntent.client_secret})
+  })
+
+  app.patch('/booking/:id', verifyJWT, async(req, res) =>{
+    const id  = req.params.id;
+    const payment = req.body;
+    const filter = {_id: ObjectId(id)};
+    const updatedDoc = {
+      $set: {
+        paid: true,
+        transactionId: payment.transactionId
+      }
+    }
+
+    const result = await paymentCollection.insertOne(payment);
+    const updatedBooking = await orderCollection.updateOne(filter, updatedDoc);
+    res.send(updatedBooking);
+  })
+
+
   // Order api
   app.post('/orders', async(req, res) =>{
     const order = req.body;
     const result = await orderCollection.insertOne(order);
     res.send(result)
 });
+app.get('/payment/:id', async(req, res) =>{
+  const id = req.params.id;
+  const query = {_id: ObjectId(id)};
+  const booking = await orderCollection.findOne(query);
+  res.send(booking);
+})
 
 app.get('/user', verifyJWT, async(req,res)=>{
   const users = await userCollection.find().toArray();
