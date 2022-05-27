@@ -192,12 +192,32 @@ app.get('/clientReview', async(req,res)=>{
     res.send({result,token})
   });
 
-
+  app.put('/updatedProducts/:id', async (req, res)=>{
+    const id = req.params.id;
+    const updatedProduct = req.body;
+    const filter ={_id: ObjectId(id)};
+    const options = { upsert: true}
+    const udatedDoc ={
+        $set:{
+            price: updatedProduct.price,
+            min_Quantity: updatedProduct.min_Quantity,
+            available_Quantity: updatedProduct.available_Quantity,
+        }
+    };
+    const result = await productsCollection.updateOne(filter, udatedDoc, options)
+} )
   // delete api
   app.delete('/dashboard/:id', async (req, res)=>{
     const id = req.params.id;
     const query = {_id: ObjectId(id)};
     const result = await orderCollection.deleteOne(query);
+    res.send(result);
+
+})
+  app.delete('/deleteUsers/:id', async (req, res)=>{
+    const id = req.params.id;
+    const query = {_id: ObjectId(id)};
+    const result = await userCollection.deleteOne(query);
     res.send(result);
 
 })
