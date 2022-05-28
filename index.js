@@ -55,6 +55,12 @@ async function run(){
      const user = await userCollection.find(query).toArray();
      res.send(user)
    })
+   app.get('/myprofile/:id', async(req, res) => {
+    const id = req.params.id;
+    const query = { _id: ObjectId(id) };
+    const product = await userCollection.findOne(query);
+    res.send(product);
+  })
    app.get('/purchase/:id', async(req, res) => {
     const id = req.params.id;
     const query = { _id: ObjectId(id) };
@@ -118,6 +124,10 @@ app.get('/payment/:id', async(req, res) =>{
 app.get('/clientReview', async(req,res)=>{
   const review = await reviewCollection.find().toArray();
   res.send(review);
+})
+app.get('/ordersAll', async (req,res)=>{
+  const orders = await orderCollection.find().toArray();
+  res.send(orders);
 })
 app.get('/alluser', async (req,res)=>{
   const user = await userCollection.find().toArray();
@@ -218,6 +228,23 @@ app.get('/alluser', async (req,res)=>{
         }
     };
     const result = await productsCollection.updateOne(filter, udatedDoc, options)
+} )
+  app.put('/updatedProfile/:id', async (req, res)=>{
+    const id = req.params.id;
+    const updatedProfile = req.body;
+    const filter ={_id: ObjectId(id)};
+    const options = { upsert: true}
+    const udatedDoc ={
+        $set:{
+            name: updatedProfile.name,
+            location: updatedProfile.location,
+            phone: updatedProfile.phone,
+            linkdin: updatedProfile.linkdin,
+            education: updatedProfile.education,
+            img:updatedProfile.img
+        }
+    };
+    const result = await userCollection.updateOne(filter, udatedDoc, options)
 } )
   // delete api
   app.delete('/dashboard/:id', async (req, res)=>{
