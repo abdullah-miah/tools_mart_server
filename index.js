@@ -48,12 +48,25 @@ async function run(){
        const products = await cursor.toArray();
        res.send(products);
    })
+
+   app.get('/myprofile', async(req,res)=>{
+     const email =req.query.email;
+     const query = ({email:email});
+     const user = await userCollection.find(query).toArray();
+     res.send(user)
+   })
    app.get('/purchase/:id', async(req, res) => {
     const id = req.params.id;
     const query = { _id: ObjectId(id) };
     const product = await productsCollection.findOne(query);
     res.send(product);
   })
+  //  app.get('/user/:id', async(req, res) => {
+  //   const id = req.params.id;
+  //   const query = { _id: ObjectId(id) };
+  //   const user = await userCollection.findOne(query);
+  //   res.send(user);
+  // })
 
   app.post('/create-payment-intent', verifyJWT, async(req, res) =>{
     const service = req.body;
@@ -102,13 +115,13 @@ app.get('/payment/:id', async(req, res) =>{
   res.send(payment);
 })
 
-app.get('/user', verifyJWT, async(req,res)=>{
-  const users = await userCollection.find().toArray();
-  res.send(users);
-})
 app.get('/clientReview', async(req,res)=>{
   const review = await reviewCollection.find().toArray();
   res.send(review);
+})
+app.get('/alluser', async (req,res)=>{
+  const user = await userCollection.find().toArray();
+  res.send(user)
 })
 
 // order get api
